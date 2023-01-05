@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace ESH_MultiVersionSwagger
@@ -29,7 +31,17 @@ namespace ESH_MultiVersionSwagger
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers(c => c.Conventions.Add(new ApiExplorerGroupPerVersionConvention()));
+            services.AddControllers(c => c.Conventions.Add(new ApiExplorerGroupPerVersionConvention()))
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+                    options.JsonSerializerOptions.WriteIndented = true;
+                    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                    options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+                    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                });
+
             services.AddSwaggerGen(c =>
             {
                 c.CustomSchemaIds(x => x.Name);
@@ -39,10 +51,10 @@ namespace ESH_MultiVersionSwagger
                 c.SwaggerDoc("v2", new OpenApiInfo { Title = "ESH_MultiVersionSwagger v2", Version = "v2", Description = "API de testes" });
 
 
-                // Set the comments path for the Swagger JSON and UI.
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
+                //// Set the comments path for the Swagger JSON and UI.
+                //var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                //var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                //c.IncludeXmlComments(xmlPath);
             });
         }
 
